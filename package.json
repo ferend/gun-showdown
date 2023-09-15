@@ -1,0 +1,52 @@
+{
+  "name": "intelligent-choice",
+  "version": "16.11.1",
+  "description": "Multiplayer game for the Intelligent Choice project",
+  "scripts": {
+    "start": "webpack serve --config webpack/webpack.dev.js",
+    "build": "rimraf dist && webpack --config webpack/webpack.prod.js",
+    "bundle": "npm run build",
+    "serve": "nodemon server.js",
+    "format": "prettier --check src/scripts/**",
+    "format:write": "prettier --write src/scripts/**"
+  },
+  "keywords": [
+    "Phaser",
+    "Phaser 3",
+    "Phaser3",
+    "html5 game",
+    "TypeScript",
+    "webpack",
+    "starter"
+  ],
+  "engines": {
+    "node": ">=12"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "form-data": "^4.0.0",
+    "phaser": "^3.55.2"
+  },
+  "devDependencies": {
+    "@types/node": "^18.14.1",
+    "@yandeu/prettier-config": "^0.0.3",
+    "copy-webpack-plugin": "^10.1.0",
+    "express": "^4.18.2",
+    "html-webpack-plugin": "^5.5.0",
+    "javascript-obfuscator": "^4.0.0",
+    "nodemon": "^2.0.20",
+    "prettier": "^2.5.1",
+    "rimraf": "^3.0.2",
+    "serve": "^14.1.2",
+    "socket.io": "^4.6.1",
+    "socket.io-client": "^4.6.1",
+    "ts-loader": "^9.2.6",
+    "typescript": "^4.5.3",
+    "webpack": "^5.65.0",
+    "webpack-cli": "^4.9.1",
+    "webpack-dev-server": "^4.6.0",
+    "webpack-merge": "^5.8.0",
+    "webpack-obfuscator": "^3.5.0",
+    "workbox-webpack-plugin": "^6.4.2"
+  }
+}
