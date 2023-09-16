@@ -10,14 +10,9 @@ export default class Game extends Phaser.Scene
         super('game');
     }
 
-    preload ()
-    {
-        this.load.image('Background', 'assets/Background.png');
-    }
 
     create ()
     {
-        const bg = this.add.image(0, 0, 'Background').setOrigin(0).setDisplaySize(game.scale.width,game.scale.height);
     }
 }
 
@@ -27,15 +22,15 @@ const config = {
     scale: {
         mode: Phaser.Scale.FIT,
         parent: 'phaser-example',
-        width: 800,
-        height: 600
+        width: 1920,
+        height: 1080
     },
     scene: [PreloadScene, MainScene],
   physics: {
     default: 'arcade',
     arcade: {
       debug: false,
-      gravity: { y: 400 }
+      //gravity: { y: 400 }
     }
   }
 };

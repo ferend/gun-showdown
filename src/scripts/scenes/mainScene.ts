@@ -1,5 +1,6 @@
 //import PhaserLogo from '../objects/phaserLogo'
 //import FpsText from '../objects/fpsText'
+import Player from '../models/player';
 import * as Phaser from 'phaser';
 import io from 'socket.io-client';
 
@@ -9,6 +10,8 @@ export default class MainScene extends Phaser.Scene {
   private socket: any;
   public isPlayerA: boolean;
   private startButton: Phaser.GameObjects.Text;
+  private player : Player;
+  background: Phaser.GameObjects.Sprite;
 
   constructor() {
     super({ key: 'MainScene' })
@@ -16,9 +19,11 @@ export default class MainScene extends Phaser.Scene {
 
 
   create() {
+    this.createBackground();
+
     this.isPlayerA = false;
     let self = this;
-    
+
 
     // Display the score
     this.scoreText = this.add.text(10, 10, 'Score: 0 - 0', {
@@ -48,10 +53,29 @@ export default class MainScene extends Phaser.Scene {
     }).setInteractive().on('pointerdown', () => {
       this.startButton.destroy();
       this.scoreText.setVisible(true);
+      
+this.scoreText.setScrollFactor(0);
+
+      this.player = new Player(900,400,this,this.socket);
     });
+
+  }
+  createBackground() {
+    this.background = this.physics.add.sprite(0, 0, "bg");
+    this.background.setOrigin(0, 0);
+    this.physics.world.setBounds(
+      0,
+      0,
+      this.background.displayWidth,
+      this.background.displayHeight
+    );
 
   }
 
   update() {
+    if(this.player!=null) {
+      this.player.update();
+
+    }
   }
 }
