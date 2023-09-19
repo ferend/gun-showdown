@@ -17,14 +17,13 @@ export default class Game extends Phaser.Scene
 }
 
 const config = {
-    type: Phaser.AUTO,
-    backgroundColor: '#125555',
-    scale: {
-        mode: Phaser.Scale.FIT,
-        parent: 'phaser-example',
-        width: 1920,
-        height: 1080
-    },
+  type: Phaser.CANVAS,
+  width: 1920,
+  height: 1080,
+  scale: {
+    mode: Phaser.Scale.FIT,
+    autoCenter: Phaser.Scale.CENTER_BOTH,
+  },
     scene: [PreloadScene, MainScene],
   physics: {
     default: 'arcade',

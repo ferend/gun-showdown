@@ -16,7 +16,12 @@ export class Bullet extends Phaser.Physics.Arcade.Sprite {
         this.setScale(1.2,1.2);
         this.setBounce(0, 0);
         this.body.checkCollision.none = false;
-        this.body.reset(player.x+ EdirObj.tx *110, player.y + EdirObj.ty *110 );
+        
+        const offsetX = EdirObj.tx * 50;
+        const offsetY = EdirObj.ty * 50;
+        
+        this.body.reset(player.x + offsetX, player.y + offsetY);
+        
 
         this.setActive(true);
         this.setVisible(true);
