@@ -17,42 +17,9 @@ export default class MainScene extends Phaser.Scene {
   }
 
   create() {
-    this.isPlayerA = false
-    let self = this
     this.createBackground()
     this.createScoreText()
-
-    // point on where your server is on prod
-    this.socket = io('http://localhost:3000')
-    this.socket.on('connect', () => {
-      console.log('connected')
-    })
-
-    //Socket func for setting player A if player is connected to socket
-    this.socket.on('isplayerA', () => {
-      self.isPlayerA = true
-    })
-
-    this.createStartButton()
-  }
-
-  private createStartButton(): void {
-    this.startButton = this.add
-      .text(1600 / 2, 1080 / 2, 'Start Game!' ,{
-        fontSize: '32px',
-        fontFamily: 'Trebuchet MS',
-        color: '#ff0000',
-        stroke: '#ffffff',
-        strokeThickness: 6,
-      })
-      .setInteractive()
-      .on('pointerdown', () => {
-        this.startButton.destroy()
-        this.scoreText.setVisible(true)
-        this.scoreText.setScrollFactor(0)
-
-        this.startGame();
-      })
+    this.startGame();
   }
 
 
@@ -67,7 +34,7 @@ export default class MainScene extends Phaser.Scene {
       fontSize: '32px',
       fontFamily: 'Trebuchet MS'
     })
-    this.scoreText.setVisible(false)
+    this.scoreText.setVisible(true)
   }
 
   private createBackground() : void {

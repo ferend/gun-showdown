@@ -15,16 +15,18 @@ export class Bullet extends Phaser.Physics.Arcade.Sprite {
         let EdirObj = this.getDirFromAngle(player.angle);
         this.setScale(1.2,1.2);
         this.setBounce(0, 0);
+        //@ts-ignore
         this.body.checkCollision.none = false;
         
         const offsetX = EdirObj.tx * 50;
         const offsetY = EdirObj.ty * 50;
-        
+        //@ts-ignore
         this.body.reset(player.x + offsetX, player.y + offsetY);
         
 
         this.setActive(true);
         this.setVisible(true);
+        //@ts-ignore
         this.body.enable = true;
         this.angle = player.angle;
 
@@ -49,6 +51,7 @@ export class Bullet extends Phaser.Physics.Arcade.Sprite {
         if (this.autodisable) this.scene.time.removeEvent(this.autodisable);
         this.visible = false;
         this.active = false;
+        //@ts-ignore
         this.body.enable = false;
     }
 
