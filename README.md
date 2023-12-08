@@ -1,7 +1,7 @@
 # gun-showdown
 Multiplayer Phaser 3 game with socket.io (with typescript support).
 
-To get started, adjust /src/frontend/game.ts to configure your game and import scenes. Then, add your scenes to the ./scenes folder. For multiplayer, socket commmunicatioon shouold be added to the /src/backend/GameCommunication.ts
+To get started, adjust /src/scripts/game.ts to configure your game and import scenes. Then, add your scenes to the ./scenes folder. For multiplayer, socket commmunicatioon shouold be added to the /src/scripts/backend/GameCommunication.ts
 
 ##  -----------to local test---------------------
 npm run start
