@@ -1,3 +1,5 @@
 /.cache
 /dist
 /node_modules
+public/front-bundle.js
+built-server/bundle-back.js
