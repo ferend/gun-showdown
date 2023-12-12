@@ -2,17 +2,7 @@ import Player from '../models/player'
 import * as Phaser from 'phaser'
 import io from 'socket.io-client'
 import { Bullet } from '../models/bullet'
-
-interface UserData {
-  socketId: string
-  loginTime: string
-  x: number
-  y: number
-  vx: number
-  vy: number
-  angle: number
-  color: string
-}
+import { UserData } from '../UserData'
 
 export default class MainScene extends Phaser.Scene {
   private socket: any
