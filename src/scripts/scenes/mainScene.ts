@@ -16,7 +16,6 @@ interface UserData {
 
 export default class MainScene extends Phaser.Scene {
   private socket: any
-  public isPlayerA: boolean
   private player: Player
   private background: Phaser.GameObjects.Sprite
 
@@ -30,11 +29,10 @@ export default class MainScene extends Phaser.Scene {
   }
 
   create() {
-
     this.createBackground()
 
     this.createPlayerLabel()
-    
+
     this.createConnectedText()
 
     this.socket = io()
@@ -89,13 +87,24 @@ export default class MainScene extends Phaser.Scene {
       if (pointer.leftButtonDown()) {
         const bullet = new Bullet(this, this.player.x, this.player.y)
         bullet.fire(this.player)
+
+        // Emit an event with both player and bullet information
+        this.socket.emit('bullet_fired', {
+          player: { x: this.player.x, y: this.player.y, angle: this.player.angle },
+          bullet: { x: bullet.x, y: bullet.y, angle: bullet.angle }
+        })
       }
+    })
+
+    this.socket.on('bullet_fired', (data: any) => {
+      // Create a new bullet on other players' screens using opponent's player information
+      const bullet = new Bullet(this, data.bullet.x, data.bullet.y)
+      bullet.angle = data.bullet.angle
+      bullet.fire(data.player) // Pass opponent's player information to fire method
     })
 
     this.startGame()
   }
-
-
 
   update() {
     if (this.player != null) {
@@ -114,17 +123,19 @@ export default class MainScene extends Phaser.Scene {
 
   private createConnectedText() {
     this.playersConnectedText = this.add.text(620, 20, '', {
-      color: "red"
+      color: 'red'
     })
     this.playersConnectedText.setScale(5)
   }
 
   private createPlayerLabel() {
-    this.playerLabel = this.add.text(-50, -50, ' this is you', {
-      color: "blue",
-      fontStyle: "bold",
-      fontSize: 10
-    }).setOrigin(0.5, 1)
+    this.playerLabel = this.add
+      .text(-50, -50, ' this is you', {
+        color: 'blue',
+        fontStyle: 'bold',
+        fontSize: 10
+      })
+      .setOrigin(0.5, 1)
     this.playerLabel.setScale(3)
   }
 
@@ -155,21 +166,20 @@ export default class MainScene extends Phaser.Scene {
     //send a position update only if position is changed
     return () => {
       this.playersConnectedText.setText('clients connected: ' + (this.opponents.length + 1).toString())
-        let data = {
-          socketId: this.socket.id,
-          x: this.player.x,
-          y: this.player.y,
-          //@ts-ignore
-          vx: this.player.body.velocity.x,
-          //@ts-ignore
-          vy: this.player.body.velocity.x,
-          angle: this.player.angle
-        }
-        this.socket.emit('player update', data)
-        oldX = this.player.x
-        oldY = this.player.y
-        oldAngle = this.player.angle
-      
+      let data = {
+        socketId: this.socket.id,
+        x: this.player.x,
+        y: this.player.y,
+        //@ts-ignore
+        vx: this.player.body.velocity.x,
+        //@ts-ignore
+        vy: this.player.body.velocity.x,
+        angle: this.player.angle
+      }
+      this.socket.emit('player update', data)
+      oldX = this.player.x
+      oldY = this.player.y
+      oldAngle = this.player.angle
     }
   }
 }

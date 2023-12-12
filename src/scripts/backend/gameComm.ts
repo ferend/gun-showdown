@@ -45,6 +45,11 @@ socket.on('player update', function (data:UserData) {
     currentUsers.push(newPlayer)  //add user for data tracking/sharing
   })
 
+  socket.on('bullet_fired', (bulletData) => {
+    // Broadcast the bullet information to all other players
+    socket.broadcast.emit('bullet_fired', bulletData);
+  });
+
   setInterval(()=>{
     io.emit("update all", recentUpdates)
     recentUpdates.forEach(data =>{

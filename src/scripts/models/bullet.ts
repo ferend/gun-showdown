@@ -8,9 +8,8 @@ export class Bullet extends Phaser.Physics.Arcade.Sprite {
     scene.add.existing(this)
     scene.physics.world.enable(this) // Enable physics for the bullet
   }
-
-  public fire(player): void {
-    let EdirObj = this.getDirFromAngle(player.angle)
+  public fire(playerData): void {
+    let EdirObj = this.getDirFromAngle(playerData.angle)
     this.setScale(1.2, 1.2)
     this.setBounce(0, 0)
     //@ts-ignore
@@ -19,24 +18,23 @@ export class Bullet extends Phaser.Physics.Arcade.Sprite {
     const offsetX = EdirObj.tx * 50
     const offsetY = EdirObj.ty * 50
     //@ts-ignore
-    this.body.reset(player.x + offsetX, player.y + offsetY)
+    this.body.reset(playerData.x + offsetX, playerData.y + offsetY)
 
     this.setActive(true)
     this.setVisible(true)
     //@ts-ignore
     this.body.enable = true
-    this.angle = player.angle
+    this.angle = playerData.angle
 
     this.setVelocity(EdirObj.tx * 3000, EdirObj.ty * 3000)
 
     this.autodisable = this.scene.time.addEvent({
-      delay: 800, // ms
+      delay: 800,
       callback: this.disable,
       callbackScope: this,
       loop: false
     })
   }
-
   private getDirFromAngle(angle): any {
     let rads = (angle * Math.PI) / 180
     let tx = Math.cos(rads)
