@@ -5,14 +5,16 @@
   "scripts": {
     "start": "webpack serve --config webpack/webpack.dev.js",
     "build": "rimraf dist && webpack --config webpack/webpack.prod.js",
+    "serve": "nodemon built-server/bundle-back.js -delay 2.5",
     "bundle": "npm run build",
-    "serve": "nodemon server.js",
     "format": "prettier --check src/scripts/**",
     "format:write": "prettier --write src/scripts/**",
     "build-front": "webpack --config webpack-front.config.js",
     "build-back": "webpack --config webpack-back.config.js",
     "build-all": "npm run build-front && npm run build-back",
-    "server": "cd built-server && node bundle-back.js"
+    "build-front-serve": "webpack serve --config webpack-front.config.js",
+    "build-front-live": "webpack watch --config webpack-front.config.js",
+    "start-server": "cd built-server && node bundle-back.js"
   },
   "keywords": [
     "Phaser",
