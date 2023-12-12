@@ -1,7 +1,6 @@
 import { Bullet } from './bullet'
  
 class Player extends Phaser.Physics.Arcade.Sprite {
-  hp: number
 
   socketId: string
   loginTime: number
@@ -13,7 +12,6 @@ class Player extends Phaser.Physics.Arcade.Sprite {
     scene.add.existing(this)
     scene.physics.world.enable(this)
 
-    this.socketId = data.socketId
     this.socketId = data.socketId
     this.angle = data.angle
 
