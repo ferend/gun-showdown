@@ -10,7 +10,7 @@ interface RecentData {
 }
 
 export function GameCommunication(io, socket, currentUsers) {
-  let recentUpdates: RecentData[] = [] //array to store socketids and player data of each connection
+  let recentUpdates: RecentData[] = [] 
 
   socket.on('player update', function (data: UserData) {
     let p = recentUpdates.filter(update => update.socketId == data.socketId)
@@ -29,13 +29,19 @@ export function GameCommunication(io, socket, currentUsers) {
     let newPlayer = createNewUser(socket)
     socket.emit('first hi', newPlayer, currentUsers)
     socket.broadcast.emit('add opponent', newPlayer)
-    currentUsers.push(newPlayer) //add user for data tracking/sharing
+    currentUsers.push(newPlayer) 
   })
 
   socket.on('bullet_fired', bulletData => {
-    // Broadcast the bullet information to all other players
     socket.broadcast.emit('bullet_fired', bulletData)
   })
+
+  socket.on('player_hit', (data) => {
+    const hitSocket = currentUsers.find(user => user.socketId === data.playerSocketId);
+    if (hitSocket) {
+      io.to(hitSocket.socketId).emit('player_hit', data);
+    }
+  });
 
   setInterval(() => {
     io.emit('update all', recentUpdates)

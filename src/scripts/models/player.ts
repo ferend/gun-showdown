@@ -2,12 +2,10 @@ import { Bullet } from './bullet'
  
 class Player extends Phaser.Physics.Arcade.Sprite {
 
-  socketId: string
-  loginTime: number
+  public socketId: string
 
   constructor(x: number, y: number, scene: Phaser.Scene, data: any, socketId?: string) {
     super(scene, data.x, data.y, 'player')
-    //this.playerId = playerId || Phaser.Math.RND.uuid() // Generate a unique player ID if not provided
 
     scene.add.existing(this)
     scene.physics.world.enable(this)
@@ -40,6 +38,11 @@ class Player extends Phaser.Physics.Arcade.Sprite {
     } catch (e) {
       console.log(e)
     }
+  }
+  
+  public notifyHit() : void {
+    console.log("you got hit ")
+    alert("you got hit");
   }
 }
 export default Player;

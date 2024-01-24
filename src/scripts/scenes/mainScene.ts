@@ -3,6 +3,7 @@ import * as Phaser from 'phaser'
 import io from 'socket.io-client'
 import { Bullet } from '../models/bullet'
 import { UserData } from '../UserData'
+import {gameConfig} from "../backend/gameConfig";
 
 export default class MainScene extends Phaser.Scene {
   private socket: any
@@ -13,34 +14,123 @@ export default class MainScene extends Phaser.Scene {
   playersConnectedText: Phaser.GameObjects.Text
   firstHi = false
   opponents: Player[] = []
-
+  bullets: Bullet[] = []
+  
   constructor() {
     super({ key: 'MainScene' })
   }
 
-  create() {
+  create() : void {
     this.createBackground()
-
-    this.createPlayerLabel()
-
-    this.createConnectedText()
-
+    this.createGameTitle();
+    this.playerLabel = this.createPlayerLabel();
+    this.playersConnectedText = this.createConnectedText();
     this.socket = io()
+    this.socketEvents();
+    this.startGame()
+  }
+  
+  update() {
+    if (this.player != null) {
+      this.player.handleMovement();
+      this.player.handleRotation();
+      this.playerLabel.x = this.player.x;
+      this.playerLabel.y = this.player.y - 100;
+    }
+  }
+  private startGame(): void {
+    this.background.setVisible(true)
+    this.createCameraFunctions()
+  }
+  
+  private createGameTitle(): void {
+    const textStyle = {
+      color: 'yellow',
+      fontSize: '120px',
+      fontFamily: 'Arial',
+      fontStyle: 'bold',
+      stroke: 'purple',
+      strokeThickness: 20,
+      align: 'center',
+    };
+    let text = this.add.text(gameConfig.width / 2, gameConfig.height - 1000, 'Gun Showdown', textStyle);
+    text.setScale();
+  }
 
+  private createConnectedText(): Phaser.GameObjects.Text {
+    const textStyle = {
+      color: 'yellow',
+      fontSize: '60px',
+      fontStyle: 'bold',
+      fontFamily: 'Arial',
+      align: 'center',
+    };
+    let text = this.add.text(gameConfig.width / 1.7, gameConfig.height - 850, 'Clients Connected : ', textStyle);
+    text.setScale();
+    return text;
+  }
+
+  private createPlayerLabel(): Phaser.GameObjects.Text {
+    const labelStyle = {
+      color: 'orange',
+      fontStyle: 'bold',
+      fontSize: '42px', 
+      fontFamily: 'Arial', 
+      align: 'center', 
+    };
+    let label = this.add.text(-50, 0, 'This Is You', labelStyle).setOrigin(0.5, 1);
+    return label;
+  }
+
+  private createBackground(): void {
+    this.background = this.physics.add.sprite(0, 0, 'bg')
+    this.background.setOrigin(0, 0)
+    this.background.setScale(3);
+    this.physics.world.setBounds(0, 0, this.background.displayWidth, this.background.displayHeight)
+    this.background.setVisible(false)
+    this.background.setInteractive()
+  }
+
+  private createCameraFunctions(): void {
+    this.cameras.main.setBounds(0, 0, this.background.displayWidth, this.background.displayHeight)
+    this.cameras.main.zoom = 0.75
+  }
+
+  updateState() {
+    let oldX = 0, oldY = 0, oldAngle = 0;
+    //send a position update only if position is changed
+    return () => {
+      this.playersConnectedText.setText('Clients Connected: ' + (this.opponents.length + 1).toString())
+      let data = {
+        socketId: this.socket.id,
+        x: this.player.x,
+        y: this.player.y,
+        vx: this.player.body?.velocity.x,
+        vy: this.player.body?.velocity.x,
+        angle: this.player.angle
+      }
+      this.socket.emit('player update', data)
+      oldX = this.player.x
+      oldY = this.player.y
+      oldAngle = this.player.angle
+    }
+  }
+
+  private socketEvents() {
     this.socket.on('first hi', (data: UserData, opponentData: UserData[]) => {
-      if (this.firstHi != true) {
+      if (!this.firstHi) {
         this.firstHi = true
-        this.player = new Player(0, 0, this, data)
+        this.player = new Player(500, 400, this, data)
         opponentData.forEach(o => {
-          let opponent = new Player(100, 0, this, o)
+          let opponent = new Player(200, 220, this, o)
           this.opponents.push(opponent)
         })
-        this.time.addEvent({ delay: 1000 / 60, loop: true, callback: this.updateState(), callbackScope: this })
+        this.time.addEvent({delay: 1000 / 60, loop: true, callback: this.updateState(), callbackScope: this})
       }
     })
 
     this.socket.on('add opponent', (data: UserData) => {
-      let opponent = new Player(100, 0, this, data)
+      let opponent = new Player(400, 200, this, data)
       this.opponents.push(opponent)
     })
 
@@ -65,7 +155,7 @@ export default class MainScene extends Phaser.Scene {
           opponent.x = p.x
           opponent.y = p.y
           opponent.setVelocityX(p.vx)
-          opponent.setVelocityY(p.vY)
+          opponent.setVelocityY(p.vy)
           opponent.angle = p.angle
         }
       })
@@ -77,99 +167,37 @@ export default class MainScene extends Phaser.Scene {
       if (pointer.leftButtonDown()) {
         const bullet = new Bullet(this, this.player.x, this.player.y)
         bullet.fire(this.player)
-
-        // Emit an event with both player and bullet information
+        this.bullets.push(bullet);
         this.socket.emit('bullet_fired', {
-          player: { x: this.player.x, y: this.player.y, angle: this.player.angle },
-          bullet: { x: bullet.x, y: bullet.y, angle: bullet.angle }
+          player: {x: this.player.x, y: this.player.y, angle: this.player.angle},
+          bullet: {x: bullet.x, y: bullet.y, angle: bullet.angle}
         })
       }
     })
 
     this.socket.on('bullet_fired', (data: any) => {
-      // Create a new bullet on other players' screens using opponent's player information
-      const bullet = new Bullet(this, data.bullet.x, data.bullet.y)
-      bullet.angle = data.bullet.angle
-      bullet.fire(data.player) // Pass opponent's player information to fire method
-    })
+      const bullet = new Bullet(this, data.bullet.x, data.bullet.y);
+      bullet.angle = data.bullet.angle;
+      bullet.fire(data.player);
+      this.bullets.push(bullet);
+    });
 
-    this.startGame()
-  }
+    this.socket.on('player_hit', (data: { playerSocketId: string }) => {
+      // Works somehow?
+      const hitPlayer = this.opponents.find((opponent: Player) => opponent.socketId != data.playerSocketId);
 
-  update() {
-    if (this.player != null) {
-      this.player.handleMovement()
-      this.player.handleRotation()
-
-      this.playerLabel.x = this.player.x
-      this.playerLabel.y = this.player.y - 40
-    }
-  }
-
-  private startGame(): void {
-    this.background.setVisible(true)
-    this.createCameraFunctions()
-  }
-
-  private createConnectedText() {
-    this.playersConnectedText = this.add.text(620, 20, '', {
-      color: 'red'
-    })
-    this.playersConnectedText.setScale(5)
-  }
-
-  private createPlayerLabel() {
-    this.playerLabel = this.add
-      .text(-50, -50, ' this is you', {
-        color: 'blue',
-        fontStyle: 'bold',
-        fontSize: 10
-      })
-      .setOrigin(0.5, 1)
-    this.playerLabel.setScale(3)
-  }
-
-  private createBackground(): void {
-    this.background = this.physics.add.sprite(0, 0, 'bg')
-    this.background.setOrigin(0, 0)
-    this.physics.world.setBounds(0, 0, this.background.displayWidth, this.background.displayHeight)
-    this.background.setVisible(false)
-    this.background.setInteractive()
-  }
-
-  private createCameraFunctions(): void {
-    this.cameras.main.setBounds(0, 0, this.background.displayWidth, this.background.displayHeight)
-    this.cameras.main.zoom = 0.75
-    //try {
-    //this.cameras.main.startFollow(this.player, true, 0.09, 0.09)
-    //} catch (e) {
-    //console.log(e)
-    //this.createCameraFunctions()
-    //}
-  }
-
-  updateState() {
-    let oldX = 0
-    let oldY = 0
-    let oldAngle = 0
-
-    //send a position update only if position is changed
-    return () => {
-      this.playersConnectedText.setText('clients connected: ' + (this.opponents.length + 1).toString())
-      let data = {
-        socketId: this.socket.id,
-        x: this.player.x,
-        y: this.player.y,
-        //@ts-ignore
-        vx: this.player.body.velocity.x,
-        //@ts-ignore
-        vy: this.player.body.velocity.x,
-        angle: this.player.angle
+      if (hitPlayer) {
+        console.log(`Player ${hitPlayer.socketId} got hit from enemy!`);
+        hitPlayer.notifyHit();
+      } else {
+        console.log(`Player with socketId ${data.playerSocketId} not found in opponents array.`);
       }
-      this.socket.emit('player update', data)
-      oldX = this.player.x
-      oldY = this.player.y
-      oldAngle = this.player.angle
-    }
+    });
+
+    this.physics.add.collider(this.bullets, this.opponents, (bullet: any, opponent: any) => {
+      console.log(`Bullet hit opponent: ${opponent.socketId}`);
+      bullet.setVisible(false);
+      this.socket.emit('player_hit', {playerSocketId: opponent.socketId});
+    });
   }
 }
