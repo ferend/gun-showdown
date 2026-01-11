@@ -1,24 +1,26 @@
 import Phaser from 'phaser'
+import { PlayerData, Direction } from './types'
 
 export class Bullet extends Phaser.Physics.Arcade.Sprite {
-  autodisable: Phaser.Time.TimerEvent
+  autodisable: Phaser.Time.TimerEvent | null = null
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
-    super(scene, x, y, 'bullet') // Replace 'bulletTexture' with your bullet's sprite asset key
+    super(scene, x, y, 'bullet')
     scene.add.existing(this)
-    scene.physics.world.enable(this) // Enable physics for the bullet
+    scene.physics.world.enable(this)
   }
-  public fire(playerData): void {
+  
+  public fire(playerData: PlayerData): void {
     if (this.body === null) return;
 
-    let EdirObj = this.getDirFromAngle(playerData.angle)
+    const dirObj = this.getDirFromAngle(playerData.angle)
     this.setScale(1.2, 1.2)
     this.setBounce(0, 0)
 
     this.body.checkCollision.none = false
 
-    const offsetX = EdirObj.tx * 50
-    const offsetY = EdirObj.ty * 50
+    const offsetX = dirObj.tx * 50
+    const offsetY = dirObj.ty * 50
 
     this.body.reset(playerData.x + offsetX, playerData.y + offsetY)
 
@@ -28,26 +30,29 @@ export class Bullet extends Phaser.Physics.Arcade.Sprite {
     this.body.enable = true
     this.angle = playerData.angle
 
-    this.setVelocity(EdirObj.tx * 3000, EdirObj.ty * 3000)
+    this.setVelocity(dirObj.tx * 3000, dirObj.ty * 3000)
 
-      this.autodisable = this.scene.time.addEvent({
-        delay: 800,
-        callback: this.disable,
-        callbackScope: this,
-        loop: false
-      })
-    
+    this.autodisable = this.scene.time.addEvent({
+      delay: 800,
+      callback: this.disable,
+      callbackScope: this,
+      loop: false
+    })
   }
-  private getDirFromAngle(angle): any {
-    let rads = (angle * Math.PI) / 180
-    let tx = Math.cos(rads)
-    let ty = Math.sin(rads)
+  
+  private getDirFromAngle(angle: number): Direction {
+    const rads = (angle * Math.PI) / 180
+    const tx = Math.cos(rads)
+    const ty = Math.sin(rads)
     return { tx, ty }
   }
 
-  disable() {
+  public disable(): void {
     if (this.body === null) return; 
-    if (this.autodisable) this.scene.time.removeEvent(this.autodisable)
+    if (this.autodisable) {
+      this.scene.time.removeEvent(this.autodisable)
+      this.autodisable = null
+    }
     this.visible = false
     this.active = false
     this.body.enable = false
