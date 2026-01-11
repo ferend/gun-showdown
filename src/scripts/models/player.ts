@@ -1,10 +1,11 @@
 import { Bullet } from './bullet'
+import { UserData } from '../UserData'
  
 class Player extends Phaser.Physics.Arcade.Sprite {
 
   public socketId: string
 
-  constructor(x: number, y: number, scene: Phaser.Scene, data: any, socketId?: string) {
+  constructor(x: number, y: number, scene: Phaser.Scene, data: UserData, socketId?: string) {
     super(scene, data.x, data.y, 'player')
 
     scene.add.existing(this)
@@ -19,24 +20,37 @@ class Player extends Phaser.Physics.Arcade.Sprite {
   }
 
   public handleMovement(): void {
-    //@ts-ignore
-    const deltaX = Number(this.scene.input.keyboard.addKey('D').isDown) - Number(this.scene.input.keyboard.addKey('A').isDown);
-    //@ts-ignore
-    const deltaY = Number(this.scene.input.keyboard.addKey('S').isDown) - Number(this.scene.input.keyboard.addKey('W').isDown);
+    const keyboard = this.scene.input.keyboard;
+    if (!keyboard) return;
+    
+    const keyD = keyboard.addKey('D');
+    const keyA = keyboard.addKey('A');
+    const keyS = keyboard.addKey('S');
+    const keyW = keyboard.addKey('W');
+    
+    const deltaX = Number(keyD.isDown) - Number(keyA.isDown);
+    const deltaY = Number(keyS.isDown) - Number(keyW.isDown);
     this.x += deltaX * 5;
     this.y += deltaY * 5;
   }
 
   public handleRotation(): void {
-    this.scene.input.mousePointer.x = this.scene.input.mousePointer.worldX + 33
-    this.scene.input.mousePointer.y = this.scene.input.mousePointer.worldY + 45
-
-    let angle = Phaser.Math.Angle.BetweenPoints(this, this.scene.input.mousePointer)
-    angle = Math.round((180 * angle) / Math.PI)
+    const mousePointer = this.scene.input.mousePointer;
+    if (!mousePointer) return;
+    
+    const worldX = mousePointer.worldX + 33;
+    const worldY = mousePointer.worldY + 45;
+    
+    let angle = Phaser.Math.Angle.BetweenPoints(
+      { x: this.x, y: this.y },
+      { x: worldX, y: worldY }
+    );
+    angle = Math.round((180 * angle) / Math.PI);
+    
     try {
-      this.setAngle(angle)
+      this.setAngle(angle);
     } catch (e) {
-      console.log(e)
+      console.error('Error setting angle:', e);
     }
   }
   
