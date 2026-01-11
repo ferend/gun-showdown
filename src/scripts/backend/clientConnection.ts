@@ -1,18 +1,8 @@
 import {GameCommunication} from './gameComm'
-import Phaser from 'phaser'
+import { UserData } from '../UserData'
+import { Server as SocketIOServer } from 'socket.io'
 
-interface UserData {
-  socketId: string,
-  loginTime: number,
-  x: number,
-  y:number,
-  vx: number,
-  vy:number
-  angle: number,
-  color: string
-}
-
-export function clientConnection(io: any) {
+export function clientConnection(io: SocketIOServer) {
 
   
   let currentUsers: UserData[] = [] //array to store socketids and player data of each connection
@@ -34,11 +24,12 @@ export function clientConnection(io: any) {
      }, 5000) 
   }
 
-function removeUser(currentUsers: UserData[], socket: any) {
-  let u: UserData[] = currentUsers.filter((user: UserData) => { return user.socketId == socket.id; });
-  if (u && u[0]) {
-    socket.broadcast.emit("remove player", u[0].socketId);
-    currentUsers.splice(currentUsers.indexOf(u[0]), 1);
+function removeUser(currentUsers: UserData[], socket: any): void {
+  const userIndex = currentUsers.findIndex((user: UserData) => user.socketId === socket.id);
+  if (userIndex > -1) {
+    const user = currentUsers[userIndex];
+    socket.broadcast.emit("remove player", user.socketId);
+    currentUsers.splice(userIndex, 1);
   }
   socket.removeAllListeners();
 }

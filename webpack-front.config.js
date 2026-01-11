@@ -11,8 +11,10 @@ module.exports = {
   devServer: {
     host: '0.0.0.0', // Required for docker
     publicPath: '',
-    contentBase: path.resolve(__dirname, "frontend"),
-    watchContentBase: true,
+    static: {
+      directory: path.resolve(__dirname, "public"),
+      watch: true
+    },
     compress: true,
     port: 9001
   },

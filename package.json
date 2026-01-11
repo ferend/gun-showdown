@@ -5,7 +5,7 @@
   "scripts": {
     "start": "webpack serve --config webpack/webpack.dev.js",
     "build": "rimraf dist && webpack --config webpack/webpack.prod.js",
-    "serve": "nodemon built-server/bundle-back.js -delay 2.5",
+    "serve": "nodemon built-server/bundle-back.js --delay 2.5",
     "bundle": "npm run build",
     "format": "prettier --check src/scripts/**",
     "format:write": "prettier --write src/scripts/**",
@@ -14,7 +14,10 @@
     "build-all": "npm run build-front && npm run build-back",
     "build-front-serve": "webpack serve --config webpack-front.config.js",
     "build-front-live": "webpack watch --config webpack-front.config.js",
-    "start-server": "cd built-server && node bundle-back.js"
+    "start-server": "cd built-server && node bundle-back.js",
+    "dev": "npm run build-all && npm run start-server",
+    "test": "npm run build-all && npm run start-server",
+    "kill-port": "node -e \"require('child_process').exec('netstat -ano | findstr :3000', (e,o) => { const m = o.match(/\\s+(\\d+)\\s*$/m); if(m) { require('child_process').exec(`taskkill /PID ${m[1]} /F`, console.log); } else console.log('Port 3000 is free'); });\""
   },
   "keywords": [
     "Phaser",
@@ -30,22 +33,23 @@
   },
   "license": "MIT",
   "dependencies": {
+    "express": "^4.18.2",
     "form-data": "^4.0.0",
-    "phaser": "^3.55.2"
+    "phaser": "^3.55.2",
+    "socket.io": "^4.7.2",
+    "socket.io-client": "^4.6.1"
   },
   "devDependencies": {
+    "@types/express": "^4.17.21",
     "@types/node": "^18.14.1",
     "@yandeu/prettier-config": "^0.0.3",
     "copy-webpack-plugin": "^10.1.0",
-    "express": "^4.18.2",
     "html-webpack-plugin": "^5.5.0",
     "javascript-obfuscator": "^4.0.0",
     "nodemon": "^2.0.22",
     "prettier": "^2.5.1",
     "rimraf": "^3.0.2",
     "serve": "^14.1.2",
-    "socket.io": "^4.7.2",
-    "socket.io-client": "^4.6.1",
     "ts-loader": "^9.2.6",
     "typescript": "^4.5.3",
     "webpack": "^5.65.0",
